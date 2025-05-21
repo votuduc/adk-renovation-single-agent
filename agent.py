@@ -1,33 +1,12 @@
 import os
 from google.adk.agents import Agent
-from google.adk.tools import ToolContext
-from google.adk.agents.callback_context import CallbackContext
 from google.genai import types
-from google.adk.artifacts import InMemoryArtifactService
-from google.adk.sessions import InMemorySessionService
-from google.adk.runners import Runner
 import warnings
-from typing import Any, Dict, List, Optional
-import typing
-from google.adk.sessions import Session
-from google.adk.events import Event
-import random
-import vertexai
-from vertexai.preview.reasoning_engines import AdkApp
 from google.cloud import storage
-from google.genai.types import Blob
-from google.genai.types import Part
 import logging
-import base64
-import mimetypes
-import asyncio
-import pdfplumber
-import requests
 import io
-import json
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from vertexai import agent_engines
 
 # Load environment variables from .env file
 from dotenv import load_dotenv
@@ -39,19 +18,14 @@ STORAGE_BUCKET = os.environ["STORAGE_BUCKET"]
 GOOGLE_CLOUD_PROJECT = os.environ["GOOGLE_CLOUD_PROJECT"]
 GOOGLE_CLOUD_LOCATION = os.environ["GOOGLE_CLOUD_LOCATION"]
 GOOGLE_GENAI_USE_VERTEXAI=os.environ["GOOGLE_GENAI_USE_VERTEXAI"]
-CHECK_ORDER_STATUS_ENDPOINT = os.environ["CHECK_ORDER_STATUS_ENDPOINT"]
 STAGING_BUCKET = "gs://" + STORAGE_BUCKET
 ROOT_AGENT_NAME = "adk_renovation_agent"
 PROJECT_ID = GOOGLE_CLOUD_PROJECT
 staging_bucket = STAGING_BUCKET
 logger = logging.getLogger(__name__)
 
-USER_ID = "user123"
-SESSION_ID = "demo"
 PROPOSAL_DOCUMENT_FILE_NAME =  "proposal_document_for_user.pdf"
 MODEL_NAME = "gemini-2.5-pro-preview-03-25"
-from fastapi import HTTPException
-
 
 '''
 Tools Definition Starts:
