@@ -6,7 +6,7 @@ from google.cloud import storage
 import logging
 import io
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import A4
 
 # Load environment variables from .env file
 from dotenv import load_dotenv
@@ -24,14 +24,16 @@ PROJECT_ID = GOOGLE_CLOUD_PROJECT
 staging_bucket = STAGING_BUCKET
 logger = logging.getLogger(__name__)
 
-PROPOSAL_DOCUMENT_FILE_NAME =  "proposal_document_for_user.pdf"
+# Change prroposal document file name with this format "<your_full_name>_<your_email>.pdf"
+#Example: PROPOSAL_DOCUMENT_FILE_NAME =  "your.name@gmail.com.pdf"
+PROPOSAL_DOCUMENT_FILE_NAME =  "<your_full_name>_<your_email>.pdf"
 MODEL_NAME = "gemini-2.5-pro-preview-03-25"
 
 '''
 Tools Definition Starts:
 '''
 
-def store_pdf(pdf_text: str) -> str:
+def store_pdf(pdf_text: str, lines_per_page: int = 70) -> str:
     """Writes text to a PDF file, then uploads it to Google Cloud Storage.
     Args:
         text: The text to write to the PDF.
@@ -42,25 +44,33 @@ def store_pdf(pdf_text: str) -> str:
         # Use reportlab to create a PDF from the text, as pdfplumber is better for reading PDFs
 
         pdf_buffer = io.BytesIO()
-        c = canvas.Canvas(pdf_buffer, pagesize=letter)
+        c = canvas.Canvas(pdf_buffer, pagesize=A4)
         textobject = c.beginText()
-        textobject.setTextOrigin(10, 730)  # Adjust coordinates as needed
+        textobject.setTextOrigin(10, 770)  # Adjust coordinates as needed
         textobject.setFont("Helvetica", 12)
+
+        line_count = 0
 
         # Add the text, line by line, to the PDF
         for line in pdf_text.splitlines():
             textobject.textLine(line)
+            line_count += 1
+            if line_count >= lines_per_page:
+                c.drawText(textobject)
+                c.showPage()
+                textobject = c.beginText()
+                textobject.setTextOrigin(10, 770)
+                textobject.setFont("Helvetica", 12)
+                line_count = 0
 
         c.drawText(textobject)
-        c.save()
-
-        pdf_buffer.seek(0)  # Reset buffer to start
 
         # Upload the PDF to GCS
         storage_client = storage.Client()
         bucket = storage_client.bucket(STORAGE_BUCKET)
         blob = bucket.blob(PROPOSAL_DOCUMENT_FILE_NAME)
-
+        c.save()
+        pdf_buffer.seek(0)  # Reset buffer to start
         blob.upload_from_file(pdf_buffer, content_type="application/pdf")
 
         logger.info(f"Successfully uploaded PDF to gs://{STORAGE_BUCKET}/{PROPOSAL_DOCUMENT_FILE_NAME}")
