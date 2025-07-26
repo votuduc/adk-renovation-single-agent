@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Change prroposal document file name with this format "<your_full_name>_<your_email>.pdf"
 #Example: PROPOSAL_DOCUMENT_FILE_NAME =  "<your_full_name>_<your_email>.pdf"
-PROPOSAL_DOCUMENT_FILE_NAME =  "yourFullName_Your_email.pdf"
+PROPOSAL_DOCUMENT_FILE_NAME =  "<your_full_name>_<your_email>.pdf"
 MODEL_NAME = "gemini-2.5-pro-preview-03-25"
 
 '''
