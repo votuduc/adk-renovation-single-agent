@@ -34,10 +34,13 @@ Tools Definition Starts:
 '''
 
 def store_pdf(pdf_text: str, lines_per_page: int = 70) -> str:
+    
     """Writes text to a PDF file, then uploads it to Google Cloud Storage.
-    Args:
-        pdf_text: The text content to write to the PDF.
-    """
+     Args:
+         text: The text to write to the PDF.
+         bucket_name: The name of the GCS bucket.
+         file_name: The name to give the PDF file in the bucket.
+     """
 
 
     try:
